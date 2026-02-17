@@ -65,6 +65,7 @@ def get_today_ohlcv(security_id, eS):
     time.sleep(1)
     if eS == "IDX_I":
         r = requests.post(url, headers=headers_with_client, json={"IDX_I": [security_id]})
+        #print (r.json().get("data", {}).get("IDX_I", {}).get(str(security_id), {}))
         return r.json().get("data", {}).get("IDX_I", {}).get(str(security_id), {})
     else:
        r = requests.post(url, headers=headers_with_client, json={"NSE_EQ": [security_id]})
@@ -101,7 +102,7 @@ def fetch_ohlcv_dhan(instrument, security_id, fromDate, toDate):
             }
 
         else :
-            today_data = None
+            return None
 
     if not df.empty:
         # Convert date column to datetime objects before sorting if they aren't already
@@ -154,8 +155,18 @@ else:
                 instrument = row["instrument"]
                 symbol = row["symbol"]
                 securityId = int(row["securityId"])
-                print(f"\nFetching: Symbol = {symbol} , Instrument={instrument}, ID={securityId}")
+                print(f"\nFetching: {L1} - Symbol = {symbol} , Instrument={instrument}, ID={securityId}")
                 df = fetch_ohlcv_dhan(instrument, securityId, fromDate, toDate)
+                # --- NEW API VALIDATION CHECK ---
+                if L1 == 1 :
+                    # If the first attempt returns None or an empty DF, or the 'open' price is missing
+                    if df is None or df.empty or df.iloc[0]['open'] is None:
+                        error_msg = f"🛑 CRITICAL: API Validation Failed at {symbol}. Likely invalid API Key or Session. Exiting script."
+                        print(error_msg)
+                        send_telegram_alert(error_msg, bot_token, chat_id)
+                        import sys
+                        sys.exit()
+                # --------------------------------
                 if df is not None and not df.empty:
                     df["instrument"] = instrument
                     df["securityId"] = securityId
@@ -183,4 +194,4 @@ else:
         msg = f"Fetched OHLCV successfully for today ({toDate})\n"
         send_telegram_alert(msg, bot_token, chat_id)
     if weekday not in ['Saturday', 'Sunday']:
-        subprocess.run(["/Users/nags/Data/Alerts/colab/venv/bin/python", "/Users/nags/Data/Alerts/colab/DhMtest.py"])
+        subprocess.run(["/Users/nags/Data/Alerts/colab/venv/bin/python", "/Users/nags/Data/Alerts/colab/Dht3.py"])
