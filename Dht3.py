@@ -299,6 +299,50 @@ def evaluate_trade_setup(row, m_st, w_st, h1_macd_cross=None, h1_st_buy=None):
 
     return "NO-TRADE (Criteria Not Met)"
 
+    #-----Hammer recovery------
+
+def detect_recovery_patterns(df):
+    """
+    Identifies:
+    Bullish: Inverted Hammer followed by a strong Green candle (Bear Trap).
+    Bearish: Regular Hammer followed by a strong Red candle (Bull Trap).
+    """
+    if len(df) < 2:
+        return None
+
+    yesterday = df.iloc[-2]
+    today = df.iloc[-1]
+
+    # --- Metrics for Calculations ---
+    y_body = abs(yesterday['close'] - yesterday['open'])
+    y_range = max(yesterday['high'] - yesterday['low'], 0.001)
+    y_upper_wick = yesterday['high'] - max(yesterday['open'], yesterday['close'])
+    y_lower_wick = min(yesterday['open'], yesterday['close']) - yesterday['low']
+
+    t_body_size = today['close'] - today['open']
+    t_range = max(today['high'] - today['low'], 0.001)
+    t_upper_wick = today['high'] - today['close']
+    t_lower_wick = today['close'] - today['low']
+
+    # --- BULLISH RECOVERY (Inverted Hammer -> Green) ---
+    is_inverted_hammer = (y_upper_wick > 2 * y_body) and (y_body / y_range < 0.35) and (y_lower_wick < y_body)
+    is_strong_green = (today['close'] > today['open']) and (today['close'] >= yesterday['high'] * 0.99) and (t_upper_wick < 0.1 * t_range)
+    
+    if is_inverted_hammer and is_strong_green :
+        return 'BULL_REV'
+        
+
+    # --- BEARISH RECOVERY (Regular Hammer -> Red) ---
+    # Yesterday: Small body at top, long lower wick (failed breakdown)
+    is_regular_hammer = (y_lower_wick > 2 * y_body) and (y_body / y_range < 0.35) and (y_upper_wick < y_body)
+    # Today: Full red candle, reclaiming yesterday's low, close near low
+    is_strong_red = (today['close'] < today['open']) and (today['close'] <= yesterday['low'] * 1.01) and (t_lower_wick < 0.1 * t_range)
+
+    if is_regular_hammer and is_strong_red:
+        return 'BEAR_REV'
+
+    return None
+
 # ========== MAIN ==========
 def main():
     # --- 1. Initialize Collections ---
@@ -316,6 +360,13 @@ def main():
     mst_alerts1 = []
     wst_alerts1 = []
     dst_alerts1 = []
+    mpat_alerts = []
+    mpat_alerts1 = []
+    wpat_alerts = []
+    wpat_alerts1 = []
+    dpat_alerts = []
+    dpat_alerts1 = []
+
 
     # mst_switch = 0
     # wst_switch = 0
@@ -327,6 +378,9 @@ def main():
     # mcpr_switch = 0
     # wcpr_switch = 0
     # dcpr_switch = 0
+    # mpat_switch = 0
+    # wpat_switch = 0
+    # dpat_switch = 0
 
 
     mst_switch = 1
@@ -339,6 +393,9 @@ def main():
     mcpr_switch = 1
     wcpr_switch = 1
     dcpr_switch = 1
+    mpat_switch = 1
+    wpat_switch = 1
+    dpat_switch = 1
 
 
     fo_df = pd.read_excel(FO_FILE)
@@ -404,13 +461,25 @@ def main():
         mlatest['Supertrend'] = m_st.iloc[-1]['Supertrend']
         mlatest['ATR'] = m_st.iloc[-1]['ATR']
         msignals = check_supertrend_signals(mlatest)
+
         if mst_switch == 1 and msignals["MST_BUY Touch"]:
             print(f"MST BUY PRESENT")
             mst_alerts.append(f"🔔 {symbol}  mst {label} (Close: {mlatest['close']:.2f}, ST: {mlatest['Supertrend']:.2f})")
-        if mst_switch == 1 and msignals["MST_SELL Touch"]:
+        if label == "FUT" and mst_switch == 1 and msignals["MST_SELL Touch"]:
             print(f"MST SELL PRESENT")
             mst_alerts1.append(f"🔔 {symbol}  mst {label} (Close: {mlatest['close']:.2f}, ST: {mlatest['Supertrend']:.2f})")
-          
+       
+           #---monthly pin bar reversal ------------
+
+        if label == "FUT"and mpat_switch == 1:
+            m_pat = detect_recovery_patterns(m_df)
+            if  m_pat == "BULL_REV":
+                print(f"M PATTERN BUY PRESENT")
+                mpat_alerts.append(f"🔥 {symbol}  M_PAT BUY {label} (Close: {mlatest['close']:.2f}")
+            if m_pat == "BEAR_REV" :
+                print(f"M PATTERN SELL PRESENT")
+                mpat_alerts1.append(f"🔥 {symbol}  M_PAT SELL {label} (Close: {mlatest['close']:.2f}")
+
 
         w_st = compute_supertrend(w_df)
         wlatest = d_df.iloc[-1].copy()
@@ -428,9 +497,18 @@ def main():
             wst_alerts.append(f"🔔{symbol} wst {label} (Close: {wlatest['close']:.2f}, ST: {wlatest['Supertrend']:.2f})")
      
         if label =="FUT" and wst_switch == 1 and wsignals["MST_SELL Touch"]:
-            print(f"MST SELL PRESENT")
+            print(f"WST SELL PRESENT")
             wst_alerts1.append(f"🔔 {symbol}  mst {label} (Close: {mlatest['close']:.2f}, ST: {mlatest['Supertrend']:.2f})")
-
+   
+    #---weekly pin bar reversal ------------
+        if label =="FUT" and wpat_switch == 1:
+            w_pat = detect_recovery_patterns(w_df)
+            if m_pat == "BULL_REV":
+                print(f"W PATTERN BUY PRESENT")
+                wpat_alerts.append(f"🔥 {symbol}  W_PAT BUY {label} (Close: {wlatest['close']:.2f}")
+            if w_pat == "BEAR_REV" :
+                print(f"W PATTERN SELL PRESENT")
+                wpat_alerts1.append(f"🔥 {symbol}  W_PAT SELL {label} (Close: {wlatest['close']:.2f}")
        
 
         #-------------- Volume SPike ------------------- 
@@ -494,6 +572,17 @@ def main():
             print(f"DST SELL PRESENT")
             dst_alerts1.append(f"🔔 {symbol} {label} dst  (Close: {dlatest['close']:.2f}, ST: {dlatest['Supertrend']:.2f})")
         
+        #---daily pin bar reversal ------------
+        if label == "FUT" and dpat_switch == 1:
+            d_pat = detect_recovery_patterns(d_df)
+            if  d_pat == "BULL_REV":
+                print(f"D PATTERN BUY PRESENT")
+                dpat_alerts.append(f"🔥 {symbol}  D_PAT BUY {label} (Close: {dlatest['close']:.2f}")
+            if d_pat == "BEAR_REV" :
+                print(f"W PATTERN SELL PRESENT")
+                dpat_alerts1.append(f"🔥 {symbol}  D_PAT SELL {label} (Close: {dlatest['close']:.2f}")
+
+
         m_df['MVWAP'] = calculate_vwap(m_df)
         w_df['WVWAP'] = calculate_vwap(w_df)
         d_df['DVWAP'] = calculate_vwap(d_df)
@@ -701,8 +790,8 @@ def main():
     else: 
         send_telegram_alert("NO DST BUY alerts")
     if dst_alerts1:
-        print (f"DST SELL FuT Alerts are {dst_alerts}")
-        send_telegram_alert(("🚀 <b> DAILY SELL SUPERTREND (FUT) ALERTS:</b>\n" + "\n".join(dst_alerts)))
+        print (f"DST SELL FuT Alerts are {dst_alerts1}")
+        send_telegram_alert(("🚀 <b> DAILY SELL SUPERTREND (FUT) ALERTS:</b>\n" + "\n".join(dst_alerts1)))
     else: 
         send_telegram_alert("NO DST SELL alerts")
 
@@ -713,8 +802,8 @@ def main():
     else: 
         send_telegram_alert("NO WST BUY alerts")
     if wst_alerts1:
-        print (f"WST SELL Alerts are {wst_alerts}")
-        send_telegram_alert(("🚀 <b> WEEKLY SELL SUPERTREND ALERTS:</b>\n" + "\n".join(wst_alerts)))
+        print (f"WST SELL Alerts are {wst_alerts1}")
+        send_telegram_alert(("🚀 <b> WEEKLY SELL SUPERTREND ALERTS:</b>\n" + "\n".join(wst_alerts1)))
     else: 
         send_telegram_alert("NO WST SELL alerts")
 
@@ -725,8 +814,8 @@ def main():
         send_telegram_alert("No MST BUY alerts")
 
     if mst_alerts1:
-        print (f"MST SELL Alerts are {mst_alerts}")
-        send_telegram_alert(("🚀 <b> MONTHLY SELL SUPERTREND ALERTS:</b>\n" + "\n".join(mst_alerts)))
+        print (f"MST SELL Alerts are {mst_alerts1}")
+        send_telegram_alert(("🚀 <b> MONTHLY SELL SUPERTREND ALERTS:</b>\n" + "\n".join(mst_alerts1)))
     else: 
         send_telegram_alert("No MST SELL alerts")
 
@@ -744,6 +833,7 @@ def main():
             send_telegram_alert("NO Weekly nCPR alerts")
     else:
         send_telegram_alert("Weekly nCPR sent already")
+
 
 
     if cdate.weekday() in (0, 1, 4):
@@ -773,9 +863,40 @@ def main():
             send_telegram_alert(("📌 <b>Monthly PIN Fut ALERTS:</b>\n" + "\n".join(mpin_alerts)))
         else: 
             send_telegram_alert("NO Monthly PIN alerts")
+        if mpat_alerts:
+            print(f"Monthly Rev BUY pattern {mpat_alerts}")
+            send_telegram_alert(("🚀🔥 <b> Monthly PAT BUY Alerts:</b>\n" + "\n".join(mpat_alerts)))
+        else:
+            send_telegram_alert("NO Monthly REV BUY Pattern alerts")
+        if mpat_alerts1:
+            print(f"Monthly Rev SELL pattern {mpat_alerts1}")
+            send_telegram_alert(("🚀🔥 <b> Monthly PAT SELL Alerts:</b>\n" + "\n".join(mpat_alerts1)))
+        else:
+            send_telegram_alert("NO Monthly REV SELL Pattern alerts")
     else:
         send_telegram_alert("MPIN will be checked in last week of the month only")
 
+    if wpat_alerts:
+        print(f"Weekly BUY Rev pattern {wpat_alerts}")
+        send_telegram_alert(("🚀🔥 <b> Weekly PAT BUY Alerts:</b>\n" + "\n".join(wpat_alerts)))
+    else:
+        send_telegram_alert("NO Weekly REV BUY Pattern alerts")
+    if wpat_alerts1:
+        print(f"Weekly SELL Rev pattern {wpat_alerts1}")
+        send_telegram_alert(("🚀🔥 <b> Weekly PAT SELL Alerts:</b>\n" + "\n".join(wpat_alerts1)))
+    else:
+        send_telegram_alert("NO Weekly REV SELL Pattern alerts")
+
+    if dpat_alerts:
+        print(f"Daily Rev pattern  buy {dpat_alerts}")
+        send_telegram_alert(("🚀🔥 <b> Daily PAT BUY Alerts:</b>\n" + "\n".join(dpat_alerts)))
+    else:
+        send_telegram_alert("NO Daily REV BUY Pattern alerts")
+    if dpat_alerts1:
+        print(f"Daily Rev pattern  sell {dpat_alerts1}")
+        send_telegram_alert(("🚀🔥 <b> Daily PAT SELL Alerts:</b>\n" + "\n".join(dpat_alerts1)))
+    else:
+        send_telegram_alert("NO Daily REV SELL Pattern alerts")
 
 
     if cdate.weekday() == 4:
