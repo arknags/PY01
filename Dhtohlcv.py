@@ -30,7 +30,7 @@ chat_id = os.environment.get("TELEGRAM_CHAT_ID")
 API_KEY = os.environment.get("DHAN_API_KEY")
 CLIENT_ID = os.environment.get("DHAN_CHAT_ID")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-input_file = os.path.join(BASE_DIR, ohlcv_output_today.xlsx") # File with all symbols
+input_file = os.path.join(BASE_DIR, ohlcv_output_today11.xlsx") # File with all symbols
 symbol_column = "symbol"
 
 
@@ -186,7 +186,7 @@ else:
     # ---- Save Outputs ----
         if all_dataframes:
             final_df = pd.concat(all_dataframes, ignore_index=True)
-            final_df.to_excel("/users/Nags/Data/Alerts/colab/ohlcv_output_today.xlsx", index=False)
+            final_df.to_excel("/users/Nags/Data/Alerts/colab/ohlcv_output_today11.xlsx", index=False)
             print("✅ OHLCV data saved to /content/ohlcv_output_today.xlsx")
         else:
             print("❌ No daily OHLCV data fetched.")
