@@ -21,7 +21,7 @@ import json
 #     config = json.load(f)
 
 # Access values
-bot_token = os.environment.get(""TELEGRAM_BOT_TOKEN")
+bot_token = os.environment.get("TELEGRAM_BOT_TOKEN")
 chat_id = os.environment.get("TELEGRAM_CHAT_ID")
 
 
@@ -196,5 +196,4 @@ else:
 
         msg = f"Fetched OHLCV successfully for today ({toDate})\n"
         send_telegram_alert(msg, bot_token, chat_id)
-    if weekday not in ['Saturday', 'Sunday']:
-        subprocess.run("python", os.path.join(BASE_DIR, "Dht3.py")
+
