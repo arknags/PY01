@@ -11,7 +11,7 @@ import subprocess
 API_KEY = os.environment.get("DHAN_API_KEY")
 CLIENT_ID = os.environment.get("DHAN_CHAT_ID")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-input_file = os.path.join(BASE_DIR, ohlcv_output_today.xlsx") # File with all symbols
+input_file = os.path.join(BASE_DIR, ohlcv_output_today11.xlsx") # File with all symbols
 symbol_column = "symbol"
 FO_FILE = os.path.join(BASE_DIR,"stockfo.xlsx")
 SYMBOL_COL = "symbol"
