@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 import requests
@@ -8,10 +9,10 @@ import subprocess
 # This  script uses monthly narrow cpr, checks if daily candle cross quarterly, monthly levels
 # ========== CONFIG ==========
 
-API_KEY = os.environment.get("DHAN_API_KEY")
-CLIENT_ID = os.environment.get("DHAN_CHAT_ID")
+API_KEY = os.environ.get("DHAN_API_KEY")
+CLIENT_ID = os.environ.get("DHAN_CHAT_ID")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-input_file = os.path.join(BASE_DIR, "ohlcv_output_today11.xlsx") # File with all symbols
+INPUT_FILE = os.path.join(BASE_DIR, "ohlcv_output_today11.xlsx") # File with all symbols
 symbol_column = "symbol"
 FO_FILE = os.path.join(BASE_DIR,"stockfo.xlsx")
 SYMBOL_COL = "symbol"
@@ -19,8 +20,8 @@ SYMBOL_COL = "symbol"
 # with open(CONFIG_FILE, 'r') as f:
 #     config = json.load(f)
 
-BOT_TOKEN = os.environment.get(""TELEGRAM_BOT_TOKEN")
-CHAT_ID = os.environment.get("TELEGRAM_CHAT_ID")
+BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
 def send_telegram_alert(message):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
@@ -507,7 +508,7 @@ def main():
     #---weekly pin bar reversal ------------
         if label =="FUT" and wpat_switch == 1:
             w_pat = detect_recovery_patterns(w_df)
-            if m_pat == "BULL_REV":
+            if w_pat == "BULL_REV":
                 print(f"W PATTERN BUY PRESENT")
                 wpat_alerts.append(f"🔥 {symbol}  W_PAT BUY {label} (Close: {wlatest['close']:.2f}")
             if w_pat == "BEAR_REV" :
@@ -778,15 +779,15 @@ def main():
     tod = datetime.today().day
     cdate = datetime.now()
 
-    if macdalerts:
-        print(f" MACD cross alerts")
-        send_telegram_alert("MACD Alerts: \n"+"\n".join(macdalerts))
+    # if macdalerts:
+    #     print(f" MACD cross alerts")
+    #     send_telegram_alert("MACD Alerts: \n"+"\n".join(macdalerts))
 
-    # if dcpr_alerts:
-        print(f"Daily FUT narrow CPR ALERTS are {dcpr_alerts}")
-        send_telegram_alert(("🚀 <b> Daily nCPR Alerts:</b>\n" + "\n".join(dcpr_alerts)))
-    else: 
-        send_telegram_alert("NO Daily nCPR alerts")
+    # # if dcpr_alerts:
+    #     print(f"Daily FUT narrow CPR ALERTS are {dcpr_alerts}")
+    #     send_telegram_alert(("🚀 <b> Daily nCPR Alerts:</b>\n" + "\n".join(dcpr_alerts)))
+    # else: 
+    #     send_telegram_alert("NO Daily nCPR alerts")
 
     if dst_alerts:
         print (f"DST BUY FuT Alerts are {dst_alerts}")
