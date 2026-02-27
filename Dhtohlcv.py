@@ -31,6 +31,7 @@ API_KEY = os.environment.get("DHAN_API_KEY")
 CLIENT_ID = os.environment.get("DHAN_CHAT_ID")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 input_file = os.path.join(BASE_DIR, ohlcv_output_today11.xlsx") # File with all symbols
+output_file = os.path.join(BASE_DIR, ohlcv_output_today11.xlsx") # File with all symbols
 symbol_column = "symbol"
 
 
@@ -186,7 +187,7 @@ else:
     # ---- Save Outputs ----
         if all_dataframes:
             final_df = pd.concat(all_dataframes, ignore_index=True)
-            final_df.to_excel("/users/Nags/Data/Alerts/colab/ohlcv_output_today11.xlsx", index=False)
+            final_df.to_excel(output_file, index=False)
             print("✅ OHLCV data saved to /content/ohlcv_output_today.xlsx")
         else:
             print("❌ No daily OHLCV data fetched.")
@@ -195,4 +196,4 @@ else:
         msg = f"Fetched OHLCV successfully for today ({toDate})\n"
         send_telegram_alert(msg, bot_token, chat_id)
     if weekday not in ['Saturday', 'Sunday']:
-        subprocess.run(["/Users/nags/Data/Alerts/colab/venv/bin/python", "/Users/nags/Data/Alerts/colab/Dht3.py"])
+        subprocess.run(["python", os.path.join(BASE_DIR, "Dht3.py"])
