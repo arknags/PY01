@@ -3,8 +3,6 @@
 name: Run Trading Script Dhtohlcv and dht3 only
 
 on:
-  schedule: 
-    - cron: '0 11 * * 1-5'   # Example: 5:30 PM IST (adjust as needed)
   workflow_dispatch:        # Allows manual run
 
 jobs:
