@@ -86,7 +86,7 @@ def fetch_ohlcv_dhan(instrument, security_id, fromDate, toDate):
     # Step# 2 Skip fetching if today is Saturday or Sunday
     toDate1 = datetime.strptime(toDate, "%Y-%m-%d")
     weekday = toDate1.strftime('%A')
-    if weekday in ['Saturday', 'Sunday']:
+    if weekday in ['Saturday','Sunday']:
         print(f"Today is {weekday} ({toDate1}), skipping today's OHLC/close/volume fetch.")
         today_data = None
     else:
@@ -116,8 +116,9 @@ def fetch_ohlcv_dhan(instrument, security_id, fromDate, toDate):
     return df
 
 # ---- User Configuration ----
-excel_path = "/users/Nags/Data/Alerts/colab/stocks770.xlsx"
-input_path = "/users/Nags/Data/Alerts/colab/ohlcv_output_today.xlsx"
+excel_path = os.path.join(BASE_DIR, "stocks770.xlsx")
+input_path = os.path.join(BASE_DIR, "ohlcv_output_today.xlsx")
+output_file = os.path.join(BASE_DIR, "ohlcv_output_today.xlsx")
 sheet_name = "Sheet1"
 fromDate = "2024-01-01"
 #toDate = "2025-05-28"
@@ -196,4 +197,8 @@ else:
         msg = f"Fetched OHLCV successfully for today ({toDate})\n"
         send_telegram_alert(msg, bot_token, chat_id)
     if weekday not in ['Saturday', 'Sunday']:
+<<<<<<< HEAD
+        subprocess.run("python", os.path.join(BASE_DIR, "Dht3.py")
+=======
         subprocess.run(["python", os.path.join(BASE_DIR, "Dht3.py"])
+>>>>>>> 01704450737961fd09346a7eb8dca47d1bb5ebbc

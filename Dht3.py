@@ -7,16 +7,20 @@ import subprocess
 
 # This  script uses monthly narrow cpr, checks if daily candle cross quarterly, monthly levels
 # ========== CONFIG ==========
-CONFIG_FILE = "/users/Nags/Data/Alerts/colab/config.json"
-INPUT_FILE = "/users/Nags/Data/Alerts/colab/ohlcv_output_today.xlsx"
-FO_FILE = "/users/Nags/Data/Alerts/colab/stockfo.xlsx"
+
+API_KEY = os.environment.get("DHAN_API_KEY")
+CLIENT_ID = os.environment.get("DHAN_CHAT_ID")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+input_file = os.path.join(BASE_DIR, ohlcv_output_today.xlsx") # File with all symbols
+symbol_column = "symbol"
+FO_FILE = os.path.join(BASE_DIR,"stockfo.xlsx")
 SYMBOL_COL = "symbol"
 
-with open(CONFIG_FILE, 'r') as f:
-    config = json.load(f)
+# with open(CONFIG_FILE, 'r') as f:
+#     config = json.load(f)
 
-BOT_TOKEN = config["TELEGRAM_BOT_TOKEN"]
-CHAT_ID = config["TELEGRAM_CHAT_ID"]
+BOT_TOKEN = os.environment.get(""TELEGRAM_BOT_TOKEN")
+CHAT_ID = os.environment.get("TELEGRAM_CHAT_ID")
 
 def send_telegram_alert(message):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
