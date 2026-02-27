@@ -197,8 +197,4 @@ else:
         msg = f"Fetched OHLCV successfully for today ({toDate})\n"
         send_telegram_alert(msg, bot_token, chat_id)
     if weekday not in ['Saturday', 'Sunday']:
-<<<<<<< HEAD
         subprocess.run("python", os.path.join(BASE_DIR, "Dht3.py")
-=======
-        subprocess.run(["python", os.path.join(BASE_DIR, "Dht3.py"])
->>>>>>> 01704450737961fd09346a7eb8dca47d1bb5ebbc
