@@ -116,7 +116,7 @@ def fetch_ohlcv_dhan(instrument, security_id, fromDate, toDate):
     return df
 
 # ---- User Configuration ----
-excel_path = os.path.join(BASE_DIR, "stocktest.xlsx")
+excel_path = os.path.join(BASE_DIR, "stocktfo1.xlsx")
 input_path = os.path.join(BASE_DIR, "ohlcv_output_today11.xlsx")
 output_file = os.path.join(BASE_DIR, "ohlcv_output_today11.xlsx")
 sheet_name = "Sheet1"
