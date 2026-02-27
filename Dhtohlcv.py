@@ -10,26 +10,27 @@ import subprocess
 import json
 
 # Optionally set a full path if it's stored elsewhere
-CONFIG_FILE = "/users/Nags/Data/Alerts/colab/config.json"
+#CONFIG_FILE = "/users/Nags/Data/Alerts/colab/config.json"
 
 
 
 
 # ========== CONFIG ==========
 # Load the JSON file
-with open(CONFIG_FILE, 'r') as f:
-    config = json.load(f)
+# with open(CONFIG_FILE, 'r') as f:
+#     config = json.load(f)
 
 # Access values
-bot_token = config["TELEGRAM_BOT_TOKEN"]
-chat_id = config["TELEGRAM_CHAT_ID"]
+bot_token = os.environment.get(""TELEGRAM_BOT_TOKEN")
+chat_id = os.environment.get("TELEGRAM_CHAT_ID")
 
 
 
 # ========== CONFIG ==========
-API_KEY = config["DHAN_API_KEY"]
-CLIENT_ID = config["DHAN_CHAT_ID"]
-input_file = "/users/Nags/Data/Alerts/colab/ohlcv_output_today.xlsx"  # File with all symbols
+API_KEY = os.environment.get("DHAN_API_KEY")
+CLIENT_ID = os.environment.get("DHAN_CHAT_ID")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+input_file = os.path.join(BASE_DIR, ohlcv_output_today.xlsx") # File with all symbols
 symbol_column = "symbol"
 
 
