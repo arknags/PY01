@@ -25,4 +25,4 @@ jobs:
       - name: Run script
 
         run: |
-          python Dhtohlcv.py
+          python Dht3.py
