@@ -21,14 +21,14 @@ import json
 #     config = json.load(f)
 
 # Access values
-bot_token = os.environment.get("TELEGRAM_BOT_TOKEN")
-chat_id = os.environment.get("TELEGRAM_CHAT_ID")
+bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
+chat_id = os.environ.get("TELEGRAM_CHAT_ID")
 
 
 
 # ========== CONFIG ==========
-API_KEY = os.environment.get("DHAN_API_KEY")
-CLIENT_ID = os.environment.get("DHAN_CHAT_ID")
+API_KEY = os.environ.get("DHAN_API_KEY")
+CLIENT_ID = os.environ.get("DHAN_CHAT_ID")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 input_file = os.path.join(BASE_DIR, "ohlcv_output_today11.xlsx") # File with all symbols
 output_file = os.path.join(BASE_DIR, "ohlcv_output_today11.xlsx") # File with all symbols
